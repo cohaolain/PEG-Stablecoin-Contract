@@ -125,6 +125,7 @@ interface MedianiserInterface {
 // ----------------------------------------------------------------------------
 contract PEG is ERC20Interface, Owned {
     using SafeMath for uint256;
+    uint256 private constant MAX_UINT256 = 2**256 - 1;
 
     string public symbol;
     string public name;
@@ -275,7 +276,9 @@ contract PEG is ERC20Interface, Owned {
         require(to != address(0), "can't send to 0 address, use burn");
         require(to != address(this), "can't transfer to self");
         balances[from] = balances[from].sub(tokens);
-        allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);
+        if (allowed[from][msg.sender] < MAX_UINT256) {
+            allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);
+        }
         balances[to] = balances[to].add(tokens);
         emit Transfer(from, to, tokens);
         return true;
