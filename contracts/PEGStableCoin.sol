@@ -40,10 +40,7 @@ library SafeMath {
 // ----------------------------------------------------------------------------
 interface ERC20Interface {
     function totalSupply() external view returns (uint256);
-    function balanceOf(address owner)
-        external
-        view
-        returns (uint256 balance);
+    function balanceOf(address owner) external view returns (uint256 balance);
     function allowance(address owner, address spender)
         external
         view
