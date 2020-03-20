@@ -1,0 +1,5 @@
+{
+  "rules": {
+    "security/no-block-members": ["off", ["timestamp"]]
+  }
+}

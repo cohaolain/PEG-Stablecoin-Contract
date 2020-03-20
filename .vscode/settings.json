@@ -1,0 +1,6 @@
+{
+  "solidity.linter": "solium",
+  "solidity.soliumRules": {
+    "security/no-block-members": ["off", ["timestamp"]]
+  }
+}
