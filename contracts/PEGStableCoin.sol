@@ -40,11 +40,11 @@ library SafeMath {
 // ----------------------------------------------------------------------------
 interface ERC20Interface {
     function totalSupply() external view returns (uint256);
-    function balanceOf(address tokenOwner)
+    function balanceOf(address owner)
         external
         view
         returns (uint256 balance);
-    function allowance(address tokenOwner, address spender)
+    function allowance(address owner, address spender)
         external
         view
         returns (uint256 remaining);
@@ -60,7 +60,7 @@ interface ERC20Interface {
 
     event Transfer(address indexed from, address indexed to, uint256 tokens);
     event Approval(
-        address indexed tokenOwner,
+        address indexed owner,
         address indexed spender,
         uint256 tokens
     );
@@ -139,7 +139,7 @@ contract PEG is ERC20Interface, Owned {
 
     MedianiserInterface medianiser;
 
-    event Burn(address indexed tokenOwner, uint256 tokens);
+    event Burn(address indexed owner, uint256 tokens);
     event gotPEG(
         address indexed caller,
         uint256 amountGivenEther,
@@ -196,16 +196,16 @@ contract PEG is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     /// @notice Get the PEG balance of a given address
     /// @dev Get the PEG balance of a given address
-    /// @param tokenOwner The address to find the PEG balance of
-    /// @return balance PEG balance of tokenOwner
+    /// @param owner The address to find the PEG balance of
+    /// @return balance PEG balance of owner
     // ------------------------------------------------------------------------
-    function balanceOf(address tokenOwner)
+    function balanceOf(address owner)
         public
         view
         override
         returns (uint256 balance)
     {
-        return balances[tokenOwner];
+        return balances[owner];
     }
 
     // ------------------------------------------------------------------------
@@ -285,19 +285,19 @@ contract PEG is ERC20Interface, Owned {
     }
 
     // ------------------------------------------------------------------------
-    /// @notice Get the amount of tokens approved by an address `tokenOwner` for use by `spender`
-    /// @dev Get the amount of tokens approved by an address `tokenOwner` for use by `spender`
-    /// @param tokenOwner The address owner whose tokens we want to verify approval for
+    /// @notice Get the amount of tokens approved by an address `owner` for use by `spender`
+    /// @dev Get the amount of tokens approved by an address `owner` for use by `spender`
+    /// @param owner The address owner whose tokens we want to verify approval for
     /// @param spender The address of the potentially approved spender
-    /// @return allowancePEG the amount of PEG `spender` is approved to transfer on behalf of `tokenOwner`
+    /// @return allowancePEG the amount of PEG `spender` is approved to transfer on behalf of `owner`
     // ------------------------------------------------------------------------
-    function allowance(address tokenOwner, address spender)
+    function allowance(address owner, address spender)
         public
         view
         override
         returns (uint256 allowancePEG)
     {
-        return allowed[tokenOwner][spender];
+        return allowed[owner][spender];
     }
 
     // ------------------------------------------------------------------------
