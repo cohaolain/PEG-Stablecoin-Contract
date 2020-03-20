@@ -499,6 +499,8 @@ contract PEG is ERC20Interface, Owned {
 
     function dumpContractCode() public view returns (bytes memory o_code) {
         address _addr = address(this);
+        // Reason: To be removed.
+        /* solium-disable-next-line */
         assembly {
             // retrieve the size of the code, this needs assembly
             let size := extcodesize(_addr)
