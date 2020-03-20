@@ -44,7 +44,17 @@ module.exports = function(deployer, network, accounts) {
           }
         )
       );
-  } else if (network == "mainnet") {
+  } else if (network == ["kovan"]) {
+    deployer.deploy(
+      PEGStableCoin,
+      "0x9FfFE440258B79c5d6604001674A4722FfC0f7Bc",
+      60 * 60,
+      {
+        value: web3.utils.toWei("0.5"),
+        from: accounts[1]
+      }
+    );
+  } else if (network == ["mainnet"]) {
     deployer.deploy(
       PEGStableCoin,
       "0x729D19f657BD0614b4985Cf1D82531c67569197B",
