@@ -69,6 +69,16 @@ contract("PEG", accounts => {
     );
   });
 
+  it("transfers: should fail when trying to transfer to the 0 address", async () => {
+    await assertRevert(
+      PEG.transfer.call(
+        "0x0000000000000000000000000000000000000000",
+        pegify(1),
+        { from: accounts[0] }
+      )
+    );
+  });
+
   // APPROVALS
   it("approvals: msg.sender should approve 100 to accounts[1]", async () => {
     await PEG.approve(accounts[1], pegify(100), { from: accounts[0] });
@@ -245,5 +255,25 @@ contract("PEG", accounts => {
     assert.strictEqual(approvalLog.args.owner, accounts[0]);
     assert.strictEqual(approvalLog.args.spender, accounts[1]);
     assert.deepStrictEqual(approvalLog.args.tokens, pegify(2666));
+  });
+
+  it("burn: should decrease balance and total supply, and fire Burn, Transfer events", async () => {
+    const res = await PEG.burn(pegify(50), { from: accounts[0] });
+    const burnLog = await res.logs.find(element => element.event.match("Burn"));
+    const transferLog = await res.logs.find(element =>
+      element.event.match("Transfer")
+    );
+    const totalSupply = await PEG.totalSupply();
+    const balance = await PEG.balanceOf(accounts[0]);
+    assert.deepStrictEqual(pegify(9950), balance);
+    assert.deepStrictEqual(pegify(19950), totalSupply);
+    assert.strictEqual(transferLog.args.from, accounts[0]);
+    assert.strictEqual(
+      transferLog.args.to,
+      "0x0000000000000000000000000000000000000000"
+    );
+    assert.deepStrictEqual(transferLog.args.tokens, pegify(50));
+    assert.strictEqual(burnLog.args.owner, accounts[0]);
+    assert.deepStrictEqual(burnLog.args.tokens, pegify(50));
   });
 });
