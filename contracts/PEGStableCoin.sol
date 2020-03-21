@@ -235,7 +235,7 @@ contract PEG is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     function burn(uint256 tokens) public returns (bool success) {
         _totalSupply = _totalSupply.sub(tokens);
-        balances[msg.sender] -= balances[msg.sender].sub(tokens);
+        balances[msg.sender] = balances[msg.sender].sub(tokens);
         emit Burn(msg.sender, tokens);
         return true;
     }
