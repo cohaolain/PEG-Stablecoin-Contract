@@ -324,9 +324,9 @@ contract PEG is ERC20Interface, Owned {
     /// @notice Ether can be sent directly to the contract in exchange for PEG (if sufficient gas is provided)
     /// @dev Ether can be sent directly to the contract in exchange for PEG (if sufficient gas is provided)
     // ------------------------------------------------------------------------
-    // receive () external payable {
-    //     getPEG();
-    // }
+    receive () external payable {
+        getPEG();
+    }
 
     // Runs a price feed adjustment if more than timeBetweenPriceAdjustments has passed
     modifier canTriggerPriceAdjustment {
