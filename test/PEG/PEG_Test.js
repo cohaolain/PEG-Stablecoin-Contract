@@ -211,7 +211,6 @@ contract("PEG", accounts => {
     assert.deepStrictEqual(balance02, pegify(9980));
   });
 
-  /* eslint-disable no-underscore-dangle */
   it("events: should fire Transfer event properly", async () => {
     const res = await PEG.transfer(accounts[1], pegify(2666), {
       from: accounts[0]
