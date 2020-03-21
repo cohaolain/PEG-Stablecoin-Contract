@@ -43,7 +43,9 @@ module.exports = {
           2
         ),
       network_id: 3, // Ropsten's id
-      confirmations: 2 // # of confs to wait between deployments. (default: 0)
+      confirmations: 2, // # of confs to wait between deployments. (default: 0),
+      gas: 2 * 10 ** 6,
+      gasPrice: web3.utils.toWei("10", "gwei")
     },
 
     // NB: It's important to wrap the provider as a function.
@@ -56,7 +58,9 @@ module.exports = {
           2
         ),
       network_id: 42, // Kovan's id
-      confirmations: 2 // # of confs to wait between deployments. (default: 0)
+      confirmations: 2, // # of confs to wait between deployments. (default: 0)
+      gas: 2 * 10 ** 6,
+      gasPrice: web3.utils.toWei("10", "gwei")
     },
 
     // Mainnet
@@ -69,7 +73,9 @@ module.exports = {
           2
         ),
       network_id: 1,
-      production: true // Treats this network as if it was a public net. (default: false)
+      production: true, // Treats this network as if it was a public net. (default: false)
+      gas: 2 * 10 ** 6,
+      gasPrice: web3.utils.toWei("10", "gwei")
     }
   },
 
