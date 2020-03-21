@@ -39,7 +39,7 @@ module.exports = function(deployer, network, accounts) {
           DeployedFakeMedianiser.address,
           60 * 60,
           {
-            value: web3.utils.toWei("1"),
+            value: web3.utils.toWei("0.5"),
             from: accounts[1]
           }
         )
