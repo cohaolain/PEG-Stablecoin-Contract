@@ -7,8 +7,8 @@ pragma solidity >=0.6.1;
 // Name        : PEG Stable Coin
 // Decimals    : 18
 //
-// Ciarán Ó hAoláin, Phil Maguire 2019.
-// Maynooth University 2019.
+// Ciarán Ó hAoláin, Phil Maguire 2020.
+// Maynooth University 2020.
 // The MIT License.
 // ----------------------------------------------------------------------------
 
