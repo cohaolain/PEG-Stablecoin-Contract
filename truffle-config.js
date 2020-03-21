@@ -68,7 +68,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           secrets.mainnet_private_keys,
-          `https://ropsten.infura.io/v3/` + secrets.infura_key,
+          `https://mainnet.infura.io/v3/` + secrets.infura_key,
           0,
           2
         ),
