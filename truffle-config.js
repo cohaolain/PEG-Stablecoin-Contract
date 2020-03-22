@@ -40,7 +40,7 @@ module.exports = {
           secrets.test_private_keys,
           `https://ropsten.infura.io/v3/` + secrets.infura_key,
           0,
-          2
+          3
         ),
       network_id: 3, // Ropsten's id
       confirmations: 2, // # of confs to wait between deployments. (default: 0),
@@ -55,7 +55,7 @@ module.exports = {
           secrets.test_private_keys,
           `https://kovan.infura.io/v3/` + secrets.infura_key,
           0,
-          2
+          3
         ),
       network_id: 42, // Kovan's id
       confirmations: 2, // # of confs to wait between deployments. (default: 0)
