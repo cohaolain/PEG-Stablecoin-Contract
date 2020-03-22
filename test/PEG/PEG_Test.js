@@ -35,7 +35,7 @@ contract("PEG", accounts => {
     assert.deepStrictEqual(owner_balance, pegify(10000));
   });
 
-    it("test correct setting of vanity information", async () => {
+    it("should have correct vanity information", async () => {
     const name = await PEG.name();
     assert.strictEqual(name, "PEG Stablecoin");
 
