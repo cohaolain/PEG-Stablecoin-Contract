@@ -21,18 +21,18 @@ contract("PEG", accounts => {
       from: accounts[0]
     });
     PEG = await PEG_Abstraction.new(Medianiser.address, 60 * 60, {
-      from: accounts[0],
-      value: web3.utils.toWei("100")
+      from: accounts[1],
+      value: web3.utils.toWei("1")
     });
-    await PEG.getPEG({ from: accounts[0], value: web3.utils.toWei("100") });
+    await PEG.getPEG({ from: accounts[0], value: web3.utils.toWei("1") });
   });
 
   context("creation:", () => {
-    it("should create an initial pool of 20,000 PEG, and owner then gets 10,000 PEG by giving 100 ETH", async () => {
+    it("should create an initial pool of 200 PEG, and owner then gets 100 PEG by giving 1 ETH", async () => {
       const pool_balance = await PEG.balanceOf(PEG.address);
       const owner_balance = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(pool_balance, pegify(10000));
-      assert.deepStrictEqual(owner_balance, pegify(10000));
+      assert.deepStrictEqual(pool_balance, pegify(100));
+      assert.deepStrictEqual(owner_balance, pegify(100));
     });
 
     it("should have correct vanity information", async () => {
@@ -48,17 +48,17 @@ contract("PEG", accounts => {
   });
 
   context("transfers:", () => {
-    it("should transfer 10,000 PEG to accounts[1] with accounts[0] having 10,000 PEG", async () => {
-      await PEG.transfer(accounts[1], pegify(10000), { from: accounts[0] });
+    it("should transfer 100 PEG to accounts[1] with accounts[0] having 100 PEG", async () => {
+      await PEG.transfer(accounts[1], pegify(100), { from: accounts[0] });
       const balance1 = await PEG.balanceOf(accounts[1]);
-      assert.deepStrictEqual(balance1, pegify(10000));
+      assert.deepStrictEqual(balance1, pegify(100));
       const balance0 = await PEG.balanceOf(accounts[0]);
       assert.deepStrictEqual(balance0, pegify(0));
     });
 
-    it("should fail when trying to transfer 10,001 PEG to accounts[1] with accounts[0] having 10,000 PEG", async () => {
+    it("should fail when trying to transfer 101 PEG to accounts[1] with accounts[0] having 100 PEG", async () => {
       await assertRevert(
-        PEG.transfer(accounts[1], pegify(10001), { from: accounts[0] })
+        PEG.transfer(accounts[1], pegify(101), { from: accounts[0] })
       );
     });
 
@@ -88,7 +88,7 @@ contract("PEG", accounts => {
     // bit overkill. But is for testing a bug
     it("should withdraw 20 PEG with 100 PEG allowance, leave 80 PEG allowance", async () => {
       const balance0 = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(balance0, pegify(10000));
+      assert.deepStrictEqual(balance0, pegify(100));
 
       await PEG.approve(accounts[1], pegify(100), { from: accounts[0] }); // 100
       const balance2 = await PEG.balanceOf(accounts[2]);
@@ -105,7 +105,7 @@ contract("PEG", accounts => {
       assert.deepStrictEqual(balance22, pegify(20));
 
       const balance02 = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(balance02, pegify(9980));
+      assert.deepStrictEqual(balance02, pegify(80));
     });
 
     it("should withdraw 50 PEG twice with 100 PEG allowance, leaving 0 PEG allowance", async () => {
@@ -123,7 +123,7 @@ contract("PEG", accounts => {
       assert.deepStrictEqual(balance2, pegify(50));
 
       const balance0 = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(balance0, pegify(9950));
+      assert.deepStrictEqual(balance0, pegify(50));
 
       // FIRST tx done.
       // onto next.
@@ -137,7 +137,7 @@ contract("PEG", accounts => {
       assert.deepStrictEqual(balance22, pegify(100));
 
       const balance02 = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(balance02, pegify(9900));
+      assert.deepStrictEqual(balance02, pegify(0));
     });
 
     it("should fail to withdraw 50, 60 PEG consecutively with starting allowance of 100 PEG", async () => {
@@ -155,7 +155,7 @@ contract("PEG", accounts => {
       assert.deepStrictEqual(balance2, pegify(50));
 
       const balance0 = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(balance0, pegify(9950));
+      assert.deepStrictEqual(balance0, pegify(50));
 
       // FIRST tx done.
       // onto next.
@@ -197,7 +197,7 @@ contract("PEG", accounts => {
 
     it("should not decrement allowance on withdrawal if msg.sender has max allowance", async () => {
       const balance0 = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(balance0, pegify(10000));
+      assert.deepStrictEqual(balance0, pegify(100));
 
       const max =
         "115792089237316195423570985008687907853269984665640564039457584007913129639935";
@@ -215,13 +215,13 @@ contract("PEG", accounts => {
       assert.deepStrictEqual(balance22, pegify(20));
 
       const balance02 = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(balance02, pegify(9980));
+      assert.deepStrictEqual(balance02, pegify(80));
     });
   });
 
   context("events:", () => {
     it("should fire Transfer event properly", async () => {
-      const res = await PEG.transfer(accounts[1], pegify(2666), {
+      const res = await PEG.transfer(accounts[1], pegify(25), {
         from: accounts[0]
       });
       const transferLog = res.logs.find(element =>
@@ -229,7 +229,7 @@ contract("PEG", accounts => {
       );
       assert.strictEqual(transferLog.args.from, accounts[0]);
       assert.strictEqual(transferLog.args.to, accounts[1]);
-      assert.deepStrictEqual(transferLog.args.tokens, pegify(2666));
+      assert.deepStrictEqual(transferLog.args.tokens, pegify(25));
     });
 
     it("should fire Transfer event normally on a zero transfer", async () => {
@@ -245,7 +245,7 @@ contract("PEG", accounts => {
     });
 
     it("should fire Approval event properly", async () => {
-      const res = await PEG.approve(accounts[1], pegify(2666), {
+      const res = await PEG.approve(accounts[1], pegify(25), {
         from: accounts[0]
       });
       const approvalLog = res.logs.find(element =>
@@ -253,7 +253,7 @@ contract("PEG", accounts => {
       );
       assert.strictEqual(approvalLog.args.owner, accounts[0]);
       assert.strictEqual(approvalLog.args.spender, accounts[1]);
-      assert.deepStrictEqual(approvalLog.args.tokens, pegify(2666));
+      assert.deepStrictEqual(approvalLog.args.tokens, pegify(25));
     });
 
     it("should fire Burn, Transfer events on burn", async () => {
@@ -281,26 +281,26 @@ contract("PEG", accounts => {
       await PEG.burn(pegify(50), { from: accounts[0] });
       const totalSupply = await PEG.totalSupply();
       const balance = await PEG.balanceOf(accounts[0]);
-      assert.deepStrictEqual(pegify(9950), balance);
-      assert.deepStrictEqual(pegify(19950), totalSupply);
+      assert.deepStrictEqual(pegify(50), balance);
+      assert.deepStrictEqual(pegify(150), totalSupply);
     });
   });
 
   context("conversion:", () => {
-    it("should convert 50 Ether sent to contract to 2000 PEG directly", async () => {
+    it("should convert 0.5 Ether sent to contract to 20 PEG directly", async () => {
       await PEG.sendTransaction({
         from: accounts[1],
-        value: pegify(50)
+        value: pegify(0.5)
       });
       const balance = await PEG.balanceOf(accounts[1]);
-      assert.deepStrictEqual(pegify(2000), balance);
+      assert.deepStrictEqual(pegify(20), balance);
     });
 
-    it("should convert 10000 PEG sent to contract to 100 Ether directly", async () => {
+    it("should convert 100 PEG sent to contract to 1 Ether directly", async () => {
       const startBalance = web3.utils.toBN(
         await web3.eth.getBalance(PEG.address)
       );
-      await PEG.transfer(PEG.address, pegify(10000), {
+      await PEG.transfer(PEG.address, pegify(100), {
         from: accounts[0]
       });
       const afterBalance = web3.utils.toBN(
@@ -308,24 +308,24 @@ contract("PEG", accounts => {
       );
       assert.equal(
         startBalance.sub(afterBalance).toString(),
-        pegify(100).toString()
+        pegify(1).toString()
       );
     });
 
-    it("should convert 50 Ether to 2000 PEG with getPEG()", async () => {
+    it("should convert 0.5 Ether to 20 PEG with getPEG()", async () => {
       await PEG.getPEG({
         from: accounts[1],
-        value: pegify(50)
+        value: pegify(0.5)
       });
       const balance = await PEG.balanceOf(accounts[1]);
-      assert.deepStrictEqual(pegify(2000), balance);
+      assert.deepStrictEqual(pegify(20), balance);
     });
 
-    it("should convert 10000 PEG to 100 Ether with getEther()", async () => {
+    it("should convert 100 PEG to 1 Ether with getEther()", async () => {
       const startBalance = web3.utils.toBN(
         await web3.eth.getBalance(PEG.address)
       );
-      await PEG.getEther(pegify(10000), {
+      await PEG.getEther(pegify(100), {
         from: accounts[0]
       });
       const afterBalance = web3.utils.toBN(
@@ -333,7 +333,7 @@ contract("PEG", accounts => {
       );
       assert.equal(
         startBalance.sub(afterBalance).toString(),
-        pegify(100).toString()
+        pegify(1).toString()
       );
     });
   });
