@@ -444,18 +444,18 @@ contract PEG is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     /// @notice (private) Performs a pool size adjustment (+/- 10% of the difference) if > 1% deviation
     /// @dev (private) Performs a pool size adjustment (+/- 10% of the difference) if > 1% deviation
-    /// @return newRatePEG The new size of the PEG pool
+    /// @return newPoolPEG The new size of the PEG pool
     // ------------------------------------------------------------------------
-    function priceFeedAdjustment() private returns (uint256 newRatePEG) {
+    function priceFeedAdjustment() private returns (uint256 newPoolPEG) {
         uint256 feedPrice;
         bool priceIsValid;
         (feedPrice, priceIsValid) = getOraclePriceETH_USD();
 
         if (!priceIsValid) {
-            newRatePEG = balances[address(this)];
+            newPoolPEG = balances[address(this)];
             lastPriceAdjustment = now;
             emit FailedAdjustment();
-            return (newRatePEG);
+            return (newPoolPEG);
         }
 
         feedPrice = feedPrice.mul(address(this).balance).div(
@@ -463,20 +463,20 @@ contract PEG is ERC20Interface, Owned {
         );
         if (feedPrice > (balances[address(this)] / 100) * 101) {
             uint256 posDelta = feedPrice.sub(balances[address(this)]).div(10);
-            newRatePEG = balances[address(this)].add(posDelta);
+            newPoolPEG = balances[address(this)].add(posDelta);
             emit Inflate(balances[address(this)], posDelta);
             emit Transfer(address(0), address(this), posDelta);
-            balances[address(this)] = newRatePEG;
+            balances[address(this)] = newPoolPEG;
             _totalSupply = _totalSupply.add(posDelta);
         } else if (feedPrice < (balances[address(this)] / 100) * 99) {
             uint256 negDelta = balances[address(this)].sub(feedPrice).div(10);
-            newRatePEG = balances[address(this)].sub(negDelta);
+            newPoolPEG = balances[address(this)].sub(negDelta);
             emit Deflate(balances[address(this)], negDelta);
             emit Transfer(address(this), address(0), negDelta);
-            balances[address(this)] = newRatePEG;
+            balances[address(this)] = newPoolPEG;
             _totalSupply = _totalSupply.sub(negDelta);
         } else {
-            newRatePEG = balances[address(this)];
+            newPoolPEG = balances[address(this)];
             emit NoAdjustment();
         }
         lastPriceAdjustment = now;
