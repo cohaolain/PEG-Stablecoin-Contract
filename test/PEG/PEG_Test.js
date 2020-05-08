@@ -1,5 +1,6 @@
 // Based on token testing by ConsenSys
-const { assertRevert } = require("../helpers/assertRevert");
+const { assertRevert: assertRevert } = require("../helpers/assertRevert");
+const { time } = require("@openzeppelin/test-helpers");
 
 const PEG_Abstraction = artifacts.require("PEG");
 const FakeMedianiser = artifacts.require("Medianiser");
@@ -20,7 +21,7 @@ contract("PEG", accounts => {
     let Medianiser = await FakeMedianiser.new(medianiser_value, {
       from: accounts[0]
     });
-    PEG = await PEG_Abstraction.new(Medianiser.address, 60 * 60, {
+    PEG = await PEG_Abstraction.new(Medianiser.address, 6 * 60 * 60, {
       from: accounts[1],
       value: web3.utils.toWei("1")
     });
@@ -335,6 +336,93 @@ contract("PEG", accounts => {
         startBalance.sub(afterBalance).toString(),
         pegify(1).toString()
       );
+    });
+  });
+
+  context("oracle-adjustment:", () => {
+    it("should adjust pool by 10% of deviation if deviation is > 1%", async () => {
+      let pool_balance = await PEG.balanceOf(PEG.address);
+      let owner_balance = await PEG.balanceOf(accounts[0]);
+      let pool_eth_balance = await web3.utils.toBN(
+        await web3.eth.getBalance(PEG.address)
+      );
+      assert.deepStrictEqual(pool_balance, pegify(100));
+      assert.deepStrictEqual(owner_balance, pegify(100));
+      assert.deepStrictEqual(pool_eth_balance, pegify(2));
+
+      await time.increase(60 * 60 * 6 + 30);
+      await PEG.transfer(accounts[1], pegify(0), { from: accounts[0] });
+      // 2 ETH = 400 USD is far off the 100 PEG in the pool
+      // Pool size should be 400 PEG according to oracle
+      // Therefore, since 400 > 100*1.01, we find a delta of 300 PEG
+      // Then, we inflate the pool by 10% of 300 PEG (30 PEG).
+      pool_balance = await PEG.balanceOf(PEG.address);
+      owner_balance = await PEG.balanceOf(accounts[0]);
+      pool_eth_balance = await web3.utils.toBN(
+        await web3.eth.getBalance(PEG.address)
+      );
+      assert.deepStrictEqual(pool_balance, pegify(130));
+      assert.deepStrictEqual(owner_balance, pegify(100));
+      assert.deepStrictEqual(pool_eth_balance, pegify(2));
+    });
+
+    it("should not adjust pool if deviation is < 1%", async () => {
+      let pool_balance = await PEG.balanceOf(PEG.address);
+      let owner_balance = await PEG.balanceOf(accounts[0]);
+      let pool_eth_balance = await web3.utils.toBN(
+        await web3.eth.getBalance(PEG.address)
+      );
+      assert.deepStrictEqual(pool_balance, pegify(100));
+      assert.deepStrictEqual(owner_balance, pegify(100));
+      assert.deepStrictEqual(pool_eth_balance, pegify(2));
+
+      await PEG.transfer(PEG.address, pegify(100), { from: accounts[0] });
+      await time.increase(60 * 60 * 6 + 30);
+      pool_balance = await PEG.balanceOf(PEG.address);
+      owner_balance = await PEG.balanceOf(accounts[0]);
+      pool_eth_balance = await web3.utils.toBN(
+        await web3.eth.getBalance(PEG.address)
+      );
+      assert.deepStrictEqual(pool_balance, pegify(200));
+      assert.deepStrictEqual(owner_balance, pegify(0));
+      assert.deepStrictEqual(pool_eth_balance, pegify(1));
+    });
+
+    it("should take 6 hours before an adjustment can occur", async () => {
+      let pool_balance = await PEG.balanceOf(PEG.address);
+      let owner_balance = await PEG.balanceOf(accounts[0]);
+      let pool_eth_balance = await web3.utils.toBN(
+        await web3.eth.getBalance(PEG.address)
+      );
+      assert.deepStrictEqual(pool_balance, pegify(100));
+      assert.deepStrictEqual(owner_balance, pegify(100));
+      assert.deepStrictEqual(pool_eth_balance, pegify(2));
+
+      // Wait, do a transfer, shouldn't trigger an adjustment
+      await time.increase(60 * 60 * 6 - 15);
+      await PEG.transfer(accounts[1], pegify(0), { from: accounts[0] });
+
+      pool_balance = await PEG.balanceOf(PEG.address);
+      owner_balance = await PEG.balanceOf(accounts[0]);
+      pool_eth_balance = await web3.utils.toBN(
+        await web3.eth.getBalance(PEG.address)
+      );
+      assert.deepStrictEqual(pool_balance, pegify(100));
+      assert.deepStrictEqual(owner_balance, pegify(100));
+      assert.deepStrictEqual(pool_eth_balance, pegify(2));
+
+      // Wait again, now should trigger an adjustment
+      await time.increase(30);
+      await PEG.transfer(accounts[1], pegify(0), { from: accounts[0] });
+
+      pool_balance = await PEG.balanceOf(PEG.address);
+      owner_balance = await PEG.balanceOf(accounts[0]);
+      pool_eth_balance = await web3.utils.toBN(
+        await web3.eth.getBalance(PEG.address)
+      );
+      assert.deepStrictEqual(pool_balance, pegify(130));
+      assert.deepStrictEqual(owner_balance, pegify(100));
+      assert.deepStrictEqual(pool_eth_balance, pegify(2));
     });
   });
 });

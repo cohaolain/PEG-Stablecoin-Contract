@@ -5,6 +5,7 @@
  */
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
+const { toWei } = require("web3-utils");
 
 const fs = require("fs");
 const secrets = JSON.parse(fs.readFileSync(".secret.json").toString());
@@ -67,7 +68,7 @@ module.exports = {
     mainnet: {
       provider: () =>
         new HDWalletProvider(
-          secrets.mainnet_private_keys,
+          secrets.mainnet_final_private_keys,
           `https://mainnet.infura.io/v3/` + secrets.infura_key,
           0,
           2
@@ -75,7 +76,7 @@ module.exports = {
       network_id: 1,
       production: true, // Treats this network as if it was a public net. (default: false)
       gas: 2 * 10 ** 6,
-      gasPrice: 10 ** 10
+      gasPrice: toWei("15", "gwei")
     }
   },
 
@@ -87,7 +88,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.6.4", // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.6.7", // Fetch exact version from solc-bin (default: truffle's version)
       settings: {
         // See the solidity docs for advice about optimization and evmVersion
         optimizer: {

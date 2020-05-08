@@ -1,7 +1,7 @@
 const PEGStableCoin = artifacts.require("PEG");
 const FakeMedianiser = artifacts.require("Medianiser");
 
-module.exports = function(deployer, network, accounts) {
+module.exports = function (deployer, network, accounts) {
   if (network == "development") {
     deployer
       .deploy(
@@ -16,7 +16,7 @@ module.exports = function(deployer, network, accounts) {
         deployer.deploy(
           PEGStableCoin,
           DeployedFakeMedianiser.address,
-          60 * 60,
+          6 * 60 * 60,
           {
             value: web3.utils.toWei("1")
           }
@@ -37,30 +37,30 @@ module.exports = function(deployer, network, accounts) {
         deployer.deploy(
           PEGStableCoin,
           DeployedFakeMedianiser.address,
-          60 * 60,
+          6 * 60 * 60,
           {
             value: web3.utils.toWei("0.5"),
             from: accounts[1]
           }
         )
       );
-  } else if (network == ["kovan"]) {
+  } else if (network == "kovan") {
     deployer.deploy(
       PEGStableCoin,
       "0x9FfFE440258B79c5d6604001674A4722FfC0f7Bc",
-      60 * 60,
+      6 * 60 * 60,
       {
         value: web3.utils.toWei("0.5"),
         from: accounts[1]
       }
     );
-  } else if (network == ["mainnet"]) {
+  } else if (network.indexOf("mainnet") != -1) {
     deployer.deploy(
       PEGStableCoin,
       "0x729D19f657BD0614b4985Cf1D82531c67569197B",
-      60 * 60,
+      6 * 60 * 60,
       {
-        value: web3.utils.toWei("1"),
+        value: web3.utils.toWei("7.35"),
         from: accounts[1]
       }
     );

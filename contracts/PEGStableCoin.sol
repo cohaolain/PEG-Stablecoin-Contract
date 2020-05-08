@@ -7,7 +7,7 @@ pragma solidity >=0.6.1;
 // Name        : PEG Stable Coin
 // Decimals    : 18
 //
-// Ciarán Ó hAoláin, Phil Maguire 2020.
+// Ciarán Ó hAoláin, Dr Phil Maguire 2020.
 // Maynooth University 2020.
 // The MIT License.
 // ----------------------------------------------------------------------------
@@ -214,6 +214,7 @@ contract PEG is ERC20Interface, Owned {
     // ----------------f--------------------------------------------------------
     function transfer(address to, uint256 tokens)
         public
+        canTriggerPriceAdjustment
         override
         returns (bool success)
     {
@@ -233,7 +234,7 @@ contract PEG is ERC20Interface, Owned {
     /// @param tokens Quantity of tokens to burn
     /// @return success true if burn is successful
     // ------------------------------------------------------------------------
-    function burn(uint256 tokens) public returns (bool success) {
+    function burn(uint256 tokens) public canTriggerPriceAdjustment returns (bool success) {
         _totalSupply = _totalSupply.sub(tokens);
         balances[msg.sender] = balances[msg.sender].sub(tokens);
         emit Burn(msg.sender, tokens);
@@ -250,6 +251,7 @@ contract PEG is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     function approve(address spender, uint256 tokens)
         public
+        canTriggerPriceAdjustment
         override
         returns (bool success)
     {
@@ -268,6 +270,7 @@ contract PEG is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     function transferFrom(address from, address to, uint256 tokens)
         public
+        canTriggerPriceAdjustment
         override
         returns (bool success)
     {
@@ -308,6 +311,7 @@ contract PEG is ERC20Interface, Owned {
     // ------------------------------------------------------------------------
     function approveAndCall(address spender, uint256 tokens, bytes memory data)
         public
+        canTriggerPriceAdjustment
         returns (bool success)
     {
         allowed[msg.sender][spender] = tokens;
@@ -496,27 +500,5 @@ contract PEG is ERC20Interface, Owned {
     {
         require(tokenAddress != address(this), "can't withdraw PEG");
         return ERC20Interface(tokenAddress).transfer(owner, tokens);
-    }
-
-    function dumpContractCode() public view returns (bytes memory o_code) {
-        address _addr = address(this);
-        // Reason: To be removed.
-        /* solium-disable-next-line */
-        assembly {
-            // retrieve the size of the code, this needs assembly
-            let size := extcodesize(_addr)
-            // allocate output byte array - this could also be done without assembly
-            // by using o_code = new bytes(size)
-            o_code := mload(0x40)
-            // new "memory end" including padding
-            mstore(
-                0x40,
-                add(o_code, and(add(add(size, 0x20), 0x1f), not(0x1f)))
-            )
-            // store length in memory
-            mstore(o_code, size)
-            // actually retrieve the code, this needs assembly
-            extcodecopy(_addr, add(o_code, 0x20), 0, size)
-        }
     }
 }
